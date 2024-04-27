@@ -80,7 +80,17 @@ pierna cartas = ocurrenciasDeNumeros 3 cartas
 color cartas  = any ((==5).flip ocurrenciasDe (map palo cartas)) palos
 color' (carta:cartas) = all (==palo carta) (map palo cartas)
 
-fullHouse cartas = par cartas && pierna cartas
+--fullHouse cartas = par cartas && pierna cartas
+fullHouse cartas = all ($ cartas) [par, pierna]
+{-
+-- Con notación lambda:
+fullHouse cartas = all (\ f -> f cartas) [par, pierna]
+
+-- Con definición local, aunque no tiene mucho beneficio en este caso...
+fullHouse cartas = all aplicarFuncion [par, pierna]
+    where aplicarFuncion fj = fj cartas
+-- El nombre de la definición local, es practicamente el mismo nombre que podríamos darle a ($)
+-}
 
 poker cartas = ocurrenciasDeNumeros 4 cartas
 
@@ -94,6 +104,42 @@ concatenar = foldl (++) []
 alguienSeCarteo jugadores = sinRepetidos totalDeCartas /= totalDeCartas
     where totalDeCartas = (concatenar . map mano) jugadores 
     -- Definición Local
+
+{-5.a
+Definir valor/1 que, dada una lista de cartas, nos indique el valor del mismo, que es el máximo valor entre los juegos que la lista de cartas cumple.
+-}
+valores = [(par,1), (pierna,2), (color,3), (fullHouse,4), (poker,5), (otro, 0)]
+valor cartas = snd . maximoSegun snd . filter (($ cartas).fst) $ valores
+{-
+valor' cartas = maximum . map snd . filter (($ cartas).fst) $ valores
+-}
+
+{-5.b
+bebidaWinner/1, que dada una lista de jugadores nos devuelve la bebida de aquel jugador que tiene el juego de mayor valor, pero sin considerar a aquellos que tienen manos mal armadas.
+-}
+bebidaWinner jugadores = bebidaPreferida . maximoSegun (valor.mano) . filter (not.manoMalArmada) $ jugadores
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
